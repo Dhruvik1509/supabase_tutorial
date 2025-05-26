@@ -6,9 +6,6 @@ import 'package:mime/mime.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
 
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +78,7 @@ class _StoragePageState extends State<StoragePage> {
       _showMessage('Failed to load files: $e');
     }
   }*/
-
+ /// Aounly Image
   // Future<void> _uploadFile() async {
   //   final result = await FilePicker.platform.pickFiles();
   //   if (result != null) {
