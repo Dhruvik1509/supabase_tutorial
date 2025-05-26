@@ -52,8 +52,26 @@ class _StoragePageState extends State<StoragePage> {
     super.initState();
     _loadFiles();
   }
-
   Future<void> _loadFiles() async {
+    try {
+      final response = await client.storage.from(bucket).list(path: '', searchOptions: const SearchOptions(limit: 1000));
+      final allFiles = <String>[];
+
+      for (final item in response) {
+        if (item.name != null && item.name.isNotEmpty) {
+          allFiles.add(item.name);
+        }
+      }
+
+      setState(() {
+        files = allFiles;
+      });
+    } catch (e) {
+      _showMessage('Failed to load files: $e');
+    }
+  }
+
+  /*Future<void> _loadFiles() async {
     try {
       final response = await client.storage.from(bucket).list();
       setState(() {
@@ -62,25 +80,63 @@ class _StoragePageState extends State<StoragePage> {
     } catch (e) {
       _showMessage('Failed to load files: $e');
     }
-  }
+  }*/
+
+  // Future<void> _uploadFile() async {
+  //   final result = await FilePicker.platform.pickFiles();
+  //   if (result != null) {
+  //     final file = result.files.single;
+  //     final filePath = file.path!;
+  //     final fileName = path.basename(filePath);
+  //
+  //     try {
+  //       final fileBytes = File(filePath).readAsBytesSync();
+  //       final mimeType = lookupMimeType(fileName);
+  //
+  //       await client.storage.from(bucket).uploadBinary(
+  //         fileName,
+  //         fileBytes,
+  //         fileOptions: FileOptions(contentType: mimeType),
+  //       );
+  //       _showMessage('Uploaded: $fileName');
+  //       _loadFiles();
+  //     } catch (e) {
+  //       print('$e');
+  //       _showMessage('Upload failed: $e');
+  //     }
+  //   }
+  // }
 
   Future<void> _uploadFile() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['jpg', 'png', 'jpeg', 'mp4', 'mov', 'avi']);
     if (result != null) {
       final file = result.files.single;
       final filePath = file.path!;
       final fileName = path.basename(filePath);
+      final mimeType = lookupMimeType(fileName);
+
+      // Check if file is image or video
+      String subfolder = 'others/';
+      if (mimeType != null) {
+        if (mimeType.startsWith('image/')) {
+          subfolder = 'images/';
+        } else if (mimeType.startsWith('video/')) {
+          subfolder = 'videos/';
+        }
+      }
+
+      final storagePath = '$subfolder$fileName'; // e.g., images/photo.jpg or videos/clip.mp4
 
       try {
         final fileBytes = File(filePath).readAsBytesSync();
-        final mimeType = lookupMimeType(fileName);
 
         await client.storage.from(bucket).uploadBinary(
-          fileName,
+          storagePath,
           fileBytes,
           fileOptions: FileOptions(contentType: mimeType),
         );
-        _showMessage('Uploaded: $fileName');
+
+        _showMessage('Uploaded: $storagePath');
         _loadFiles();
       } catch (e) {
         print('$e');
