@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path;
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -69,7 +69,7 @@ class _StoragePageState extends State<StoragePage> {
     if (result != null) {
       final file = result.files.single;
       final filePath = file.path!;
-      final fileName = p.basename(filePath);
+      final fileName = path.basename(filePath);
 
       try {
         final fileBytes = File(filePath).readAsBytesSync();
